@@ -59,9 +59,8 @@
                 this.$refs.loginRef.validate(async valid => {
                     if (!valid) return;
                     const result = await this.$http.post("/user/login", this.user);
-                    if (result.status !== 200) return this.$message.error('服务器出现问题，请联系系统管理员');
                     var data = result.data;
-                    if (data.code === 1) return this.$message.error(data.msg)
+                    this.basic(result.status, data)
                     this.$message.success(data.msg)
                     window.sessionStorage.setItem("token", result.data.data)
                     this.$router.push({ path: '/home' })

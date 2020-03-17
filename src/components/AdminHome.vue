@@ -66,7 +66,7 @@
 export default {
   created() {
     // 自动加载请求
-    this.getMenuList();
+    this.getMenuList()
   },
   data() {
     return {
@@ -79,27 +79,36 @@ export default {
     logout() {
       var that = this;
       // 清空session
-      window.sessionStorage.clear();
+      window.sessionStorage.clear()
       // 跳转登陆
       this.$router.push("/login");
       // 服务器退出
       this.$http.get("/user/logout").then(function(result) {
-        that.msg = result.data.msg;
+        that.msg = result.data.msg
         // 展示信息
-        that.$message.success(that.msg);
+        that.$message.success(that.msg)
       });
     },
     // 获取所有菜单
     async getMenuList() {
-      const result = await this.$http.get("/menu/getMenuList");
+      const result = await this.$http.get("/menu/getMenuList")
       if (result.status !== 200)
-        return this.$message.error("服务器出现问题，请联系系统管理员");
-      if (result.data.code !== 0) return this.$message.error(result.data.msg);
-      this.menusList = result.data.data;
+        return this.$message.error("服务器出现问题，请联系系统管理员")
+      if (result.data.code === 3) {
+        // 跳转登陆
+        this.$router.push("/login");
+        return this.$message.error(result.data.msg)
+      } else {
+        if (result.data.code !== 0) {
+          return this.$message.error(result.data.msg)
+        } else {
+          this.menusList = result.data.data
+        }
+      }
     },
     // 点击按钮切换菜单折叠与展开
     toggleCollapse() {
-      this.isCollapse = !this.isCollapse;
+      this.isCollapse = !this.isCollapse
     }
   }
 };

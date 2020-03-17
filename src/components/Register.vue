@@ -41,9 +41,9 @@
             // 自定义验证
             var validatePass = (rule, value, callback) => {
                 if (value === '') {
-                    callback(new Error('请再次输入密码'));
+                    callback(new Error('请再次输入密码'))
                 } else if (value !== this.user.password) {
-                    callback(new Error('两次输入密码不一致!'));
+                    callback(new Error('两次输入密码不一致!'))
                 } else {
                     callback();
                 }
@@ -90,9 +90,8 @@
                 this.$refs.registerRef.validate(async valid => {
                     if (!valid) return;
                     const result = await this.$http.post("/user/register", this.user);
-                    if (result.status !== 200) return this.$message.error('服务器出现问题，请联系系统管理员');
                     var data = result.data;
-                    if (data.code === 1) return this.$message.error(data.msg)
+                    this.basic(result.status, data)
                     this.$message.success(data.msg)
                     this.$router.push({ path: '/login' })
                 });

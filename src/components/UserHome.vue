@@ -22,7 +22,7 @@
 export default {
   created() {
     // 自动加载请求
-    this.getLoginInfo();
+    this.getLoginInfo()
   },
   data() {
     return {
@@ -37,23 +37,33 @@ export default {
       // 清空session
       window.sessionStorage.clear();
       // 跳转登陆
-      this.$router.push("/login");
+      this.$router.push("/login")
       // 服务器退出
       this.$http.get("/user/logout").then(function(result) {
         that.msg = result.data.msg;
         // 展示信息
-        that.$message.success(that.msg);
+        that.$message.success(that.msg)
       });
     },
     async getLoginInfo() {
-      const result = await this.$http.get("/user/getLoginInfo");
+      const result = await this.$http.get("/user/getLoginInfo")
       if (result.status !== 200)
-        return this.$message.error("服务器出现问题，请联系系统管理员");
-      this.isShow = !this.isShow;
-      const user = result.data.data;
-      this.nickname = user.nickname;
-      if(user.role === 'admin'){
-        this.$router.push({ path: '/adminHome' })
+        return this.$message.error("服务器出现问题，请联系系统管理员")
+      if (result.data.code === 3) {
+        // 跳转登陆
+        this.$router.push("/login");
+        this.$router.go(0)
+        return this.$message.error(result.data.msg)
+      } else {
+        if (result.data.code === 1) {
+          return this.$message.error(result.data.msg)
+        }
+        this.isShow = !this.isShow;
+        const user = result.data.data;
+        this.nickname = user.nickname;
+        if (user.role === "admin") {
+          this.$router.push({ path: "/adminHome" })
+        }
       }
     }
   }
@@ -72,11 +82,11 @@ export default {
   align-items: center;
   color: #ffffff;
   > div {
-      display: flex;
-      align-items: center;
-      span {
-          margin-left: 15px;
-      }
+    display: flex;
+    align-items: center;
+    span {
+      margin-left: 15px;
+    }
   }
 }
 .avatar_box {

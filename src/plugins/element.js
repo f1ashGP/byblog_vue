@@ -1,6 +1,6 @@
 import Vue from 'vue'
-import { Button } from 'element-ui'
 import {
+    Button,
     Form,
     FormItem,
     Input,
@@ -22,7 +22,11 @@ import {
     TableColumn,
     Switch,
     Tooltip,
-    Pagination
+    Pagination,
+    Dialog,
+    Select,
+    Option,
+    MessageBox
 } from 'element-ui'
 
 Vue.use(Button)
@@ -47,6 +51,10 @@ Vue.use(TableColumn)
 Vue.use(Switch)
 Vue.use(Tooltip)
 Vue.use(Pagination)
+Vue.use(Dialog)
+Vue.use(Select)
+Vue.use(Option)
 
 // 全局挂载
 Vue.prototype.$message = Message
+Vue.prototype.$confirm = MessageBox.confirm
