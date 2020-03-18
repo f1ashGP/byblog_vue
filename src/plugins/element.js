@@ -26,7 +26,8 @@ import {
     Dialog,
     Select,
     Option,
-    MessageBox
+    MessageBox,
+    Link
 } from 'element-ui'
 
 Vue.use(Button)
@@ -54,6 +55,7 @@ Vue.use(Pagination)
 Vue.use(Dialog)
 Vue.use(Select)
 Vue.use(Option)
+Vue.use(Link)
 
 // 全局挂载
 Vue.prototype.$message = Message

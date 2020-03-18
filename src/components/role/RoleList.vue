@@ -3,53 +3,29 @@
     <!-- 面包屑导航区-->
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>侧边栏管理</el-breadcrumb-item>
-      <el-breadcrumb-item>侧边栏列表</el-breadcrumb-item>
+      <el-breadcrumb-item>权限管理</el-breadcrumb-item>
+      <el-breadcrumb-item>权限列表</el-breadcrumb-item>
     </el-breadcrumb>
 
     <!-- 卡片视图区域 -->
     <el-card class="box-card">
       <!-- 搜索与添加 -->
       <el-row :gutter="20">
-        <el-col :span="4">
+        <el-col :span="7">
           <el-input
-            placeholder="请输入侧边栏名称"
+            placeholder="请输入权限名称"
             v-model="queryParams.name"
             clearable
             @clear="getAllMenuList"
-          ></el-input>
+          >
+            <el-button slot="append" icon="el-icon-search" @click="getAllMenuList"></el-button>
+          </el-input>
         </el-col>
-        <el-col :span="3">
-          <el-select v-model="queryParams.role" placeholder="请选择权限">
-            <el-option key="normal" label="normal" value="normal" />
-            <el-option key="admin" label="admin" value="admin" />
-          </el-select>
-        </el-col>
-        <el-col :span="3">
-          <el-select v-model="queryParams.status" placeholder="请选择状态">
-            <el-option key="false" label="关闭" value="false" />
-            <el-option key="true" label="开启" value="true" />
-          </el-select>
-        </el-col>
-        <el-col :span="1">
-          <el-button type="primary" @click="getAllMenuList">查询</el-button>
-        </el-col>
-        <el-col :span="1">
-          <el-button @click="reloadPage" style="margin-left:15px;">清除</el-button>
+        <el-col :span="4">
+          <el-button type="primary" @click="addDialog = true">添加权限</el-button>
         </el-col>
       </el-row>
-      <el-row style="margin-top:15px;">
-        <el-col>
-          <el-button type="primary" @click="addDialog = true">添加侧边栏</el-button>
-        </el-col>
-      </el-row>
-      <el-table
-        :data="menusList"
-        :border="false"
-        :stripe="true"
-        row-key="id"
-        :tree-props="{children: 'childMenuList'}"
-      >
+      <el-table :data="roleList" :border="false" :stripe="true">
         <el-table-column label="名称" prop="name"></el-table-column>
         <el-table-column label="路径" prop="path">
           <!-- <template slot-scope="scope">
@@ -57,9 +33,7 @@
             <span v-else>无</span>
           </template>-->
         </el-table-column>
-        <el-table-column label="图标" prop="icon"></el-table-column>
         <el-table-column label="权限" prop="role"></el-table-column>
-        <el-table-column label="父级列表" prop="parent"></el-table-column>
         <el-table-column label="状态">
           <template slot-scope="scope">
             <el-switch
@@ -70,7 +44,6 @@
             ></el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" prop="createTime" sortable></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-link type="primary" @click="showEditDialog(scope.row.id)" :underline="false">编辑</el-link>
@@ -96,7 +69,7 @@
     </el-card>
 
     <!-- 添加对话框 -->
-    <el-dialog title="侧边栏添加" :visible.sync="addDialog" width="50%" @close="addDialogClosed">
+    <el-dialog title="权限添加" :visible.sync="addDialog" width="50%" @close="addDialogClosed">
       <!-- 内容主体区 -->
       <!-- 登陆表单区域 -->
       <el-form label-width="70px" :model="menu" :rules="dialogRules" ref="addRef">
@@ -108,28 +81,9 @@
           <!-- 路径 -->
           <el-input v-model="menu.path"></el-input>
         </el-form-item>
-        <el-form-item prop="icon" label="图标">
-          <!-- 图标 -->
-          <el-input v-model="menu.icon"></el-input>
-        </el-form-item>
         <el-form-item prop="status" label="状态">
           <!-- 状态 -->
           <el-switch v-model="menu.status" inactive-text="关闭" active-text="开启"></el-switch>
-        </el-form-item>
-        <el-form-item label="父级">
-          <!-- 选择是否为父级 -->
-          <el-switch v-model="isParent" inactive-text="否" active-text="是"></el-switch>
-        </el-form-item>
-        <el-form-item v-show="!isParent">
-          <!-- 不是父级选择父级菜单 -->
-          <el-select v-model="menu.parentId" placeholder="请选择父级菜单">
-            <el-option
-              v-for="parentMenu in parentMenuList"
-              :key="parentMenu.id"
-              :label="parentMenu.name"
-              :value="parentMenu.id"
-            />
-          </el-select>
         </el-form-item>
         <el-form-item label="权限" prop="role">
           <!-- 选择权限 -->
@@ -152,7 +106,7 @@
     <!-- 添加对话框 -->
     <!-- 修改对话框 -->
     <el-dialog
-      title="侧边栏修改"
+      title=" 权限修改"
       :visible.sync="editDialog"
       width="50%"
       :model="editDialogFrom"
@@ -168,24 +122,9 @@
           <!-- 路径 -->
           <el-input v-model="editDialogFrom.path"></el-input>
         </el-form-item>
-        <el-form-item prop="icon" label="图标">
-          <!-- 图标 -->
-          <el-input v-model="editDialogFrom.icon"></el-input>
-        </el-form-item>
-        <el-form-item label="父级">
-          <!-- 选择是否为父级 -->
-          <el-switch v-model="editDialogFrom.menuIsParent" inactive-text="否" active-text="是"></el-switch>
-        </el-form-item>
-        <el-form-item v-show="!editDialogFrom.menuIsParent">
-          <!-- 不是父级选择父级菜单 -->
-          <el-select v-model="editDialogFrom.parentId" placeholder="请选择父级菜单">
-            <el-option
-              v-for="parentMenu in parentMenuList"
-              :key="parentMenu.id"
-              :label="parentMenu.name"
-              :value="parentMenu.id"
-            />
-          </el-select>
+        <el-form-item prop="status" label="状态">
+          <!-- 状态 -->
+          <el-switch v-model="menu.status" inactive-text="关闭" active-text="开启"></el-switch>
         </el-form-item>
         <el-form-item label="权限" prop="role">
           <!-- 选择权限 -->
@@ -219,11 +158,9 @@ export default {
       queryParams: {
         page: 1,
         count: 10,
-        name: "",
-        status: null,
-        role: null
+        name: ""
       },
-      menusList: [],
+      roleList: [],
       // 主菜单选择列表
       parentMenuList: [],
       roleList: [],
@@ -265,23 +202,20 @@ export default {
     };
   },
   created() {
-    this.getAllMenuList();
+    this.getAllRoleList();
     this.getParentMenu();
     this.getRoleList();
-    this.checkMenu("侧边栏管理");
+    this.checkMenu("权限管理");
   },
   methods: {
-    async getAllMenuList() {
-      const result = await this.$http.get("/menu/getAllMenuList", {
+    async getAllRoleList() {
+      const result = await this.$http.get("/role/getRoleList", {
         params: this.queryParams
       });
       const data = result.data.data;
-      if (result.data.msg === "暂无数据") {
-        this.$message.error(result.data.msg);
-      }
-      this.menusList = data.list;
-      this.total = data.total;
       this.basic(result.status, result.data);
+      this.roleList = data.list;
+      this.total = data.total;
     },
     // 监听 pagesize 改变事件
     handleSizeChange(newSize) {
@@ -311,13 +245,6 @@ export default {
         return this.$message.error(data.msg);
       }
     },
-    // 获取所有父级菜单
-    async getParentMenu() {
-      const result = await this.$http.get("/menu/getParentMenuList");
-      this.basic(result.status, "");
-      const data = result.data;
-      this.parentMenuList = data.data;
-    },
     // 增加
     async addNewMenu() {
       this.$refs.addRef.validate(async valid => {
@@ -335,13 +262,6 @@ export default {
         this.reload();
         return this.$message.success(data.msg);
       });
-    },
-    // 获取所有权限
-    async getRoleList() {
-      const result = await this.$http.get("/menu/getRoleList");
-      const data = result.data;
-      this.basic(result.status, data);
-      this.roleList = data.data;
     },
     // 删除
     async remove(id) {
@@ -404,8 +324,8 @@ export default {
         ) {
           return this.$message.error("请选择主菜单");
         }
+        console.log(this.editDialogFrom.status);
         this.editDialogFrom.mode = "update";
-        console.log(this.editDialogFrom.parentId);
         const result = await this.$http.post("/menu/operateMenu", {
           id: this.editDialogFrom.id,
           name: this.editDialogFrom.name,
@@ -421,10 +341,6 @@ export default {
         this.reload();
         return this.$message.success(data.msg);
       });
-    },
-    // 查询清除
-    reloadPage() {
-      this.reload();
     }
   }
 };

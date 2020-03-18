@@ -4,21 +4,19 @@
     <el-header>
       <div>
         <img src="../assets/dog.jpg" class="avatar_box" />
-        <span>ByBlog管理页面</span>
+        <span style="font-size:14px;">ByBlog管理后台</span>
       </div>
-      <el-button type="info" @click="logout">退出</el-button>
+      <el-link type="info" @click="logout" :underline="false" style="font-size:18px;">退出</el-link>
     </el-header>
     <!-- 头部区域 -->
     <!-- 主要区域 -->
     <el-container>
       <!-- 左侧侧边栏 -->
-      <el-aside :width="isCollapse ? '64px' : '200px'">
+      <el-aside width="210px">
         <!-- 侧边栏菜单区 -->
-        <div class="toggle-button" @click="toggleCollapse">|||</div>
         <el-menu
-          background-color="#333744"
-          text-color="#fff"
-          active-text-color="#409eff"
+          text-color="#000000"
+          active-text-color="#1E90FF"
           :unique-opened="true"
           :collapse="isCollapse"
           :collapse-transition="false"
@@ -71,8 +69,7 @@ export default {
   data() {
     return {
       msg: "",
-      menusList: [],
-      isCollapse: false
+      menusList: []
     };
   },
   methods: {
@@ -105,10 +102,6 @@ export default {
           this.menusList = result.data.data
         }
       }
-    },
-    // 点击按钮切换菜单折叠与展开
-    toggleCollapse() {
-      this.isCollapse = !this.isCollapse
     }
   }
 };
@@ -119,12 +112,11 @@ export default {
   height: 100%;
 }
 .el-header {
-  background-color: #373d41;
   display: flex;
   justify-content: space-between;
   padding-left: 0;
   align-items: center;
-  color: #ffffff;
+  border: 1px solid #e3e3e3;
   > div {
     display: flex;
     align-items: center;
@@ -134,32 +126,25 @@ export default {
   }
 }
 .avatar_box {
-  height: 65px;
-  width: 70px;
+  height: 55px;
+  width: 60px;
+  border-radius: 50%;
   img {
     width: 100%;
     height: 100%;
+    border-radius: 50%;
   }
 }
 .el-main {
   background-color: #eaedf1;
 }
 .el-aside {
-  background-color: #333744;
+  border: 1px solid #e3e3e3;
   .el-menu {
     border-right: 0;
   }
 }
 .iconfont {
   margin-right: 10px;
-}
-.toggle-button {
-  background-color: #4a5064;
-  font-size: 10px;
-  line-height: 24px;
-  color: #fff;
-  text-align: center;
-  letter-spacing: 0.2em;
-  cursor: pointer;
 }
 </style>

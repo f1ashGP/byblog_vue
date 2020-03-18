@@ -1,22 +1,20 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Login from '../components/Login.vue'
-import Register from '../components/Register.vue'
-import UserHome from '../components/UserHome.vue'
 import AdminHome from '../components/AdminHome.vue'
 import Welcome from '../components/Welcome.vue'
 import MenuList from '../components/menu/MenuList.vue'
+import RoleList from '../components/role/RoleList.vue'
 
 Vue.use(VueRouter)
 
 const router = new VueRouter({
     routes: [
         { path: '/', redirect: '/login' },
-        { path: '/login', component: Login, meta: { title: '登陆' } },
-        { path: '/register', component: Register, meta: { title: '注册' } },
+        { path: '/login', component: Login, meta: { title: 'ByBlog后台管理' } },
         {
             path: '/home',
-            component: UserHome,
+            component: AdminHome,
             meta: { title: '首页' }
         },
         {
@@ -25,8 +23,9 @@ const router = new VueRouter({
             meta: { title: '首页' },
             redirect: '/welcome',
             children: [
-                { path: '/welcome', component: Welcome, meta: { title: '首页' } },
-                { path: '/menuList', component: MenuList, meta: { title: '侧边栏列表' } }
+                { path: '/welcome', component: Welcome, meta: { title: '后台管理' } },
+                { path: '/menuList', component: MenuList, meta: { title: '侧边栏列表' } },
+                { path: '/roleList', component: RoleList, meta: { title: '权限列表' } }
             ]
         }
     ]
@@ -41,8 +40,6 @@ router.beforeEach((to, from, next) => {
 
     // 访问login放行
     if (to.path === '/login') return next();
-    // 访问register放行
-    if (to.path === '/register') return next();
     // 获取token
     const token = window.sessionStorage.getItem('token')
     if (!token) return next('/login')
