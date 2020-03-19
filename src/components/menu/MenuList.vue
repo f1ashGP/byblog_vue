@@ -14,15 +14,20 @@
         <el-col :span="4">
           <el-input
             placeholder="请输入侧边栏名称"
-            v-model="queryParams.name"
+            v-model.trim="queryParams.name"
             clearable
             @clear="getAllMenuList"
           ></el-input>
         </el-col>
         <el-col :span="3">
+          <!-- 选择权限 -->
           <el-select v-model="queryParams.role" placeholder="请选择权限">
-            <el-option key="normal" label="normal" value="normal" />
-            <el-option key="admin" label="admin" value="admin" />
+            <el-option
+              v-for="role in roleList"
+              :key="role.role"
+              :label="role.role"
+              :value="role.role"
+            />
           </el-select>
         </el-col>
         <el-col :span="3">
@@ -102,15 +107,15 @@
       <el-form label-width="70px" :model="menu" :rules="dialogRules" ref="addRef">
         <el-form-item prop="name" label="名称">
           <!-- 名称 -->
-          <el-input v-model="menu.name"></el-input>
+          <el-input v-model.trim="menu.name"></el-input>
         </el-form-item>
         <el-form-item prop="path" label="路径">
           <!-- 路径 -->
-          <el-input v-model="menu.path"></el-input>
+          <el-input v-model.trim="menu.path"></el-input>
         </el-form-item>
         <el-form-item prop="icon" label="图标">
           <!-- 图标 -->
-          <el-input v-model="menu.icon"></el-input>
+          <el-input v-model.trim="menu.icon"></el-input>
         </el-form-item>
         <el-form-item prop="status" label="状态">
           <!-- 状态 -->
@@ -162,15 +167,15 @@
       <el-form label-width="70px" :model="editDialogFrom" :rules="dialogRules" ref="editRef">
         <el-form-item prop="name" label="名称">
           <!-- 名称 -->
-          <el-input v-model="editDialogFrom.name"></el-input>
+          <el-input v-model.trim="editDialogFrom.name"></el-input>
         </el-form-item>
         <el-form-item prop="path" label="路径">
           <!-- 路径 -->
-          <el-input v-model="editDialogFrom.path"></el-input>
+          <el-input v-model.trim="editDialogFrom.path"></el-input>
         </el-form-item>
         <el-form-item prop="icon" label="图标">
           <!-- 图标 -->
-          <el-input v-model="editDialogFrom.icon"></el-input>
+          <el-input v-model.trim="editDialogFrom.icon"></el-input>
         </el-form-item>
         <el-form-item label="父级">
           <!-- 选择是否为父级 -->
@@ -277,11 +282,14 @@ export default {
       });
       const data = result.data.data;
       if (result.data.msg === "暂无数据") {
-        this.$message.error(result.data.msg);
+        this.menusList = "";
+        this.total = "";
       }
-      this.menusList = data.list;
-      this.total = data.total;
-      this.basic(result.status, result.data);
+      if (result.data.code === 0) {
+        this.menusList = data.list;
+        this.total = data.total;
+        this.basic(result.status, result.data);
+      }
     },
     // 监听 pagesize 改变事件
     handleSizeChange(newSize) {
@@ -333,7 +341,7 @@ export default {
         this.basic(result.status, data);
         this.addDialog = !this.addDialog;
         this.reload();
-        return this.$message.success(data.msg);
+        if (data.code === 0) return this.$message.success(data.msg);
       });
     },
     // 获取所有权限
@@ -369,7 +377,7 @@ export default {
       const data = result.data;
       this.basic(result.status, data);
       this.reload();
-      return this.$message.success(data.msg);
+      if (data.code === 0) return this.$message.success(data.msg);
     },
     // 展示信息编辑对话框
     async showEditDialog(id) {
@@ -405,7 +413,6 @@ export default {
           return this.$message.error("请选择主菜单");
         }
         this.editDialogFrom.mode = "update";
-        console.log(this.editDialogFrom.parentId);
         const result = await this.$http.post("/menu/operateMenu", {
           id: this.editDialogFrom.id,
           name: this.editDialogFrom.name,
@@ -419,7 +426,7 @@ export default {
         this.basic(result.status, data);
         this.editDialog = !this.editDialog;
         this.reload();
-        return this.$message.success(data.msg);
+        if (data.code === 0) return this.$message.success(data.msg);
       });
     },
     // 查询清除

@@ -5,6 +5,7 @@ import AdminHome from '../components/AdminHome.vue'
 import Welcome from '../components/Welcome.vue'
 import MenuList from '../components/menu/MenuList.vue'
 import RoleList from '../components/role/RoleList.vue'
+import UserList from '../components/user/UserList.vue'
 
 Vue.use(VueRouter)
 
@@ -25,7 +26,8 @@ const router = new VueRouter({
             children: [
                 { path: '/welcome', component: Welcome, meta: { title: '后台管理' } },
                 { path: '/menuList', component: MenuList, meta: { title: '侧边栏列表' } },
-                { path: '/roleList', component: RoleList, meta: { title: '权限列表' } }
+                { path: '/roleList', component: RoleList, meta: { title: '权限列表' } },
+                { path: '/userList', component: UserList, meta: { title: '用户列表' } }
             ]
         }
     ]

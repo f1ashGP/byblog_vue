@@ -18,7 +18,6 @@
           text-color="#000000"
           active-text-color="#1E90FF"
           :unique-opened="true"
-          :collapse="isCollapse"
           :collapse-transition="false"
           :router="true"
           :default-active="$router.path"

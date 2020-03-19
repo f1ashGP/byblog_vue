@@ -11,18 +11,32 @@
     <el-card class="box-card">
       <!-- 搜索与添加 -->
       <el-row :gutter="20">
-        <el-col :span="7">
-          <el-input
-            placeholder="请输入权限名称"
-            v-model="queryParams.name"
-            clearable
-            @clear="getAllMenuList"
-          >
-            <el-button slot="append" icon="el-icon-search" @click="getAllMenuList"></el-button>
-          </el-input>
-        </el-col>
         <el-col :span="4">
-          <el-button type="primary" @click="addDialog = true">添加权限</el-button>
+          <el-input placeholder="请输入侧边栏名称" v-model.trim="queryParams.name" clearable></el-input>
+        </el-col>
+        <el-col :span="3">
+          <el-select v-model="queryParams.role" placeholder="请选择权限">
+            <el-option key="normal" label="normal" value="normal" />
+            <el-option key="admin" label="admin" value="admin" />
+            <el-option key="admin,normal" label="admin,normal" value="admin,normal" />
+          </el-select>
+        </el-col>
+        <el-col :span="3">
+          <el-select v-model="queryParams.status" placeholder="请选择状态">
+            <el-option key="false" label="关闭" value="false" />
+            <el-option key="true" label="开启" value="true" />
+          </el-select>
+        </el-col>
+        <el-col :span="1">
+          <el-button type="primary" @click="getAllRoleList">查询</el-button>
+        </el-col>
+        <el-col :span="1">
+          <el-button @click="reloadPage" style="margin-left:15px;">清除</el-button>
+        </el-col>
+      </el-row>
+      <el-row style="margin-top:15px;">
+        <el-col>
+          <el-button type="primary" @click="addDialog = true">添加侧边栏</el-button>
         </el-col>
       </el-row>
       <el-table :data="roleList" :border="false" :stripe="true">
@@ -44,6 +58,7 @@
             ></el-switch>
           </template>
         </el-table-column>
+        <el-table-column label="创建时间" prop="createTime" sortable></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-link type="primary" @click="showEditDialog(scope.row.id)" :underline="false">编辑</el-link>
@@ -72,35 +87,24 @@
     <el-dialog title="权限添加" :visible.sync="addDialog" width="50%" @close="addDialogClosed">
       <!-- 内容主体区 -->
       <!-- 登陆表单区域 -->
-      <el-form label-width="70px" :model="menu" :rules="dialogRules" ref="addRef">
+      <el-form label-width="70px" :model="role" :rules="dialogRules" ref="addRef">
         <el-form-item prop="name" label="名称">
           <!-- 名称 -->
-          <el-input v-model="menu.name"></el-input>
+          <el-input v-model.trim="role.name"></el-input>
         </el-form-item>
         <el-form-item prop="path" label="路径">
           <!-- 路径 -->
-          <el-input v-model="menu.path"></el-input>
+          <el-input v-model.trim="role.path"></el-input>
         </el-form-item>
-        <el-form-item prop="status" label="状态">
-          <!-- 状态 -->
-          <el-switch v-model="menu.status" inactive-text="关闭" active-text="开启"></el-switch>
-        </el-form-item>
-        <el-form-item label="权限" prop="role">
-          <!-- 选择权限 -->
-          <el-select v-model="menu.role" placeholder="请选择权限">
-            <el-option
-              v-for="role in roleList"
-              :key="role.role"
-              :label="role.role"
-              :value="role.role"
-            />
-          </el-select>
+        <el-form-item label="权限" prop="roleName">
+          <!-- 输入权限 -->
+          <el-input v-model.trim="role.roleName"></el-input>
         </el-form-item>
       </el-form>
       <!-- 按钮区域 -->
       <span slot="footer" class="dialog-footer">
         <el-button @click="addDialog = false">取 消</el-button>
-        <el-button type="primary" @click="addNewMenu()">确 定</el-button>
+        <el-button type="primary" @click="addNewRole()">确 定</el-button>
       </span>
     </el-dialog>
     <!-- 添加对话框 -->
@@ -116,26 +120,19 @@
       <el-form label-width="70px" :model="editDialogFrom" :rules="dialogRules" ref="editRef">
         <el-form-item prop="name" label="名称">
           <!-- 名称 -->
-          <el-input v-model="editDialogFrom.name"></el-input>
+          <el-input v-model.trim="editDialogFrom.name"></el-input>
         </el-form-item>
         <el-form-item prop="path" label="路径">
           <!-- 路径 -->
-          <el-input v-model="editDialogFrom.path"></el-input>
+          <el-input v-model.trim="editDialogFrom.path"></el-input>
+        </el-form-item>
+        <el-form-item label="权限" prop="roleName">
+          <!-- 输入权限 -->
+          <el-input v-model.trim="editDialogFrom.roleName"></el-input>
         </el-form-item>
         <el-form-item prop="status" label="状态">
           <!-- 状态 -->
-          <el-switch v-model="menu.status" inactive-text="关闭" active-text="开启"></el-switch>
-        </el-form-item>
-        <el-form-item label="权限" prop="role">
-          <!-- 选择权限 -->
-          <el-select v-model="editDialogFrom.role" placeholder="请选择权限">
-            <el-option
-              v-for="role in roleList"
-              :key="role.role"
-              :label="role.role"
-              :value="role.role"
-            />
-          </el-select>
+          <el-switch v-model="editDialogFrom.status" inactive-text="关闭" active-text="开启"></el-switch>
         </el-form-item>
       </el-form>
       <!-- 按钮区域 -->
@@ -158,32 +155,19 @@ export default {
       queryParams: {
         page: 1,
         count: 10,
-        name: ""
+        name: "",
+        status: null,
+        role: null
       },
       roleList: [],
-      // 主菜单选择列表
-      parentMenuList: [],
-      roleList: [],
+      roleNameList: [],
       total: 0,
-      menu: {
-        id: 0,
-        status: false,
+      role: {
+        status: true,
         name: "",
         path: "",
-        icon: "",
-        parentId: "",
-        role: ""
+        roleName: ""
       },
-      menuStatus: {
-        id: 0,
-        mode: "",
-        status: false
-      },
-      deleteMenu: {
-        id: 0,
-        mode: ""
-      },
-      isParent: false,
       // 控制添加对话框显示与隐藏
       addDialog: false,
       // 控制修改对话框显示与隐藏
@@ -195,7 +179,10 @@ export default {
           { required: true, message: "请输入名称", trigger: "blur" },
           { min: 1, max: 10, message: "长度在 1 到 10 个字符", trigger: "blur" }
         ],
-        role: [{ required: true, message: "请选择权限", trigger: "blur" }]
+        roleName: [
+          { required: true, message: "请输入权限，用逗号隔开", trigger: "blur" }
+        ],
+        path: [{ required: true, message: "请输入路径", trigger: "blur" }]
       },
       // 查询到的信息
       editDialogFrom: {}
@@ -203,8 +190,6 @@ export default {
   },
   created() {
     this.getAllRoleList();
-    this.getParentMenu();
-    this.getRoleList();
     this.checkMenu("权限管理");
   },
   methods: {
@@ -213,29 +198,33 @@ export default {
         params: this.queryParams
       });
       const data = result.data.data;
-      this.basic(result.status, result.data);
-      this.roleList = data.list;
-      this.total = data.total;
+      if (result.data.msg === "暂无数据") {
+        this.roleList = "";
+        this.total = "";
+      }
+      if (result.data.code === 0) {
+        this.roleList = data.list;
+        this.total = data.total;
+        this.basic(result.status, result.data);
+      }
     },
     // 监听 pagesize 改变事件
     handleSizeChange(newSize) {
       this.queryParams.count = newSize;
-      this.getAllMenuList();
+      this.getAllRoleList();
     },
     // 监听 页码值 改变事件
     handleCurrentChange(newPage) {
       this.queryParams.page = newPage;
-      this.getAllMenuList();
+      this.getAllRoleList();
     },
     // 修改侧边栏状态
     async useStateChange(info) {
-      this.menuStatus.id = info.id;
-      this.menuStatus.status = info.status;
-      this.menuStatus.mode = "operateStatus";
-      const result = await this.$http.post(
-        "/menu/operateMenu",
-        this.menuStatus
-      );
+      const result = await this.$http.post("/role/operateRole", {
+        id: info.id,
+        status: info.status,
+        mode: "operateStatus"
+      });
       const data = result.data;
       this.basic(result.status, "");
       this.reload();
@@ -246,21 +235,15 @@ export default {
       }
     },
     // 增加
-    async addNewMenu() {
+    async addNewRole() {
       this.$refs.addRef.validate(async valid => {
         if (!valid) return;
-        if (this.isParent) {
-          this.menu.parentId = 0;
-        }
-        if (!this.isParent && this.menu.parentId === "") {
-          return this.$message.error("请选择主菜单");
-        }
-        const result = await this.$http.post("/menu/addNewMenu", this.menu);
+        const result = await this.$http.post("/role/addNewRole", this.role);
         var data = result.data;
         this.basic(result.status, data);
         this.addDialog = !this.addDialog;
         this.reload();
-        return this.$message.success(data.msg);
+        if (data.code === 0) return this.$message.success(data.msg);
       });
     },
     // 删除
@@ -280,21 +263,19 @@ export default {
         return this.$message.info("已取消删除");
       }
 
-      this.deleteMenu.id = id;
-      this.deleteMenu.mode = "delete";
-      const result = await this.$http.post(
-        "/menu/operateMenu",
-        this.deleteMenu
-      );
+      const result = await this.$http.post("/role/operateRole", {
+        id: id,
+        mode: "delete"
+      });
       const data = result.data;
-      this.basic(result.status, data);
       this.reload();
-      return this.$message.success(data.msg);
+      this.basic(result.status, data);
+      if (data.code === 0) return this.$message.success(data.msg);
     },
     // 展示信息编辑对话框
     async showEditDialog(id) {
       this.editDialog = !this.editDialog;
-      const result = await this.$http.get("menu/getMenuInfo", {
+      const result = await this.$http.get("role/getRoleInfo", {
         params: {
           id: id
         }
@@ -315,32 +296,24 @@ export default {
     async editInfoDialog() {
       this.$refs.editRef.validate(async valid => {
         if (!valid) return;
-        if (this.editDialogFrom.menuIsParent) {
-          this.editDialogFrom.parentId = 0;
-        }
-        if (
-          !this.editDialogFrom.menuIsParent &&
-          this.editDialogFrom.parent === ""
-        ) {
-          return this.$message.error("请选择主菜单");
-        }
-        console.log(this.editDialogFrom.status);
         this.editDialogFrom.mode = "update";
-        const result = await this.$http.post("/menu/operateMenu", {
+        const result = await this.$http.post("/role/operateRole", {
           id: this.editDialogFrom.id,
           name: this.editDialogFrom.name,
           path: this.editDialogFrom.path,
-          icon: this.editDialogFrom.icon,
-          parentId: this.editDialogFrom.parentId,
-          role: this.editDialogFrom.role,
+          roleName: this.editDialogFrom.roleName,
           mode: "update"
         });
         var data = result.data;
         this.basic(result.status, data);
         this.editDialog = !this.editDialog;
         this.reload();
-        return this.$message.success(data.msg);
+        if (data.code === 0) return this.$message.success(data.msg);
       });
+    },
+    // 查询清除
+    reloadPage() {
+      this.reload();
     }
   }
 };

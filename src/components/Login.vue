@@ -15,14 +15,14 @@
       >
         <el-form-item prop="account">
           <!-- 用户名 -->
-          <el-input prefix-icon="el-icon-user" v-model="user.account" placeholder="点击上方图片进入注册页面"></el-input>
+          <el-input prefix-icon="el-icon-user" v-model.trim="user.account" placeholder="点击上方图片进入注册页面"></el-input>
         </el-form-item>
         <el-form-item prop="password">
           <!-- 密码 -->
           <el-input
             prefix-icon="el-icon-lock"
             type="password"
-            v-model="user.password"
+            v-model.trim="user.password"
             placeholder="输入密码"
           ></el-input>
         </el-form-item>
